@@ -1,0 +1,15 @@
+To call the target function getFlag() format string vulnerabilty is used.
+
+arg[0]: 0x565559a7 ("Entered plain text: %s\n")
+
+There is a test condition : test   eax,eax which needs to fail to get the flag.
+
+EAX:$ebp-0x1c = 0xffffdb5c.
+
+By exploiting the format string vulnerability, execute printf("address%x%x%x...%n") , the %n will write in the address location 0xffffdb5c some non-zero value.
+
+
+
+after encryption the string="address%x%x%x...%n". 
+
+The key is calculated and it is used to send the string in the required format.

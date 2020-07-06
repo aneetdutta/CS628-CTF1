@@ -1,0 +1,42 @@
+Target function to execute to get the flag:  execute_command() located at memory location : 0x0804878a
+
+one gets() function is located at main() function at line number: 13
+
+printf before gets() function is called with pushed argument as: 0x80488a4
+
+The location 0x80488a4 contains the line: "Do you want the flag? (y/n) :"
+
+So, we need to do the buffer overflow while giving the first input.
+
+The starting address of buffer is noted in gdb from the content of EAX register after just executing the gets() function.
+
+EAX: 0xffffdb09 ("y")
+
+So, the starting address of buffer is 0xffffdb09
+
+The line number 14 in main function:
+
+0x080486e8 <+50>:  mov    DWORD PTR ds:0x804a048,0x804878a(known to me as target function address)
+
+gave me a hint where the address of execute_command is located, which is at 0x804a048.
+
+To determine at which location the address is to be modified:
+
+We already found out the starting address of buffer.
+
+In gdb when we set the esp to execute _Z5greetP7Greeter function the content of EAX register
+
+EAX: 0xffffdb5c --> 0x80488f8 --> 0x804879e (<_ZN7Greeter8sayHelloEPKc>:	push   ebp)
+
+Where : 0xffffdb5c -> stack location, 0x80488f8 --> reference that refers to _ZN7Greeter8sayHelloEPKc function, 0x804879e -->  _ZN7Greeter8sayHelloEPKc function address.
+
+So, the address we need to modify is : 0xffffdb5c
+
+So, we need to overflow the buffer with random number of characters of length starting with "y\0" to pass the strcmp function= 0xffffdb5c - starting address of buffer = 0xffffdb5c - 0xffffdb09= 0x53= 83.
+
+The buffer of size 83 is filled with random character starting with "y\0" and followed by the address of the memory location which refers to the execute_command() function.
+
+
+
+
+

@@ -1,0 +1,5 @@
+Hint: Substitution cipher -> there is one-to-one mapping between the characters.
+
+The encoded text is partially decoded using this site https://www.guballa.de/substitution-solver. There is a line like "the flag is xxxxxxx". Then we did one-one mapping with the character where the mapping is clearly understood.
+
+This flag is submitted to get the ultimate flag.

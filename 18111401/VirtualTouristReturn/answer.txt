@@ -1,0 +1,35 @@
+Target function to execute to get the flag:  get_flag(char const*) located at memory location : 0x08048876
+
+one gets() function is located at main() function at line number: 22
+
+printf before gets() function is called with pushed argument as: 0x8048a1c
+
+The location 0x80488a4 contains the line: "Do you want the flag? (yes/no) :"
+
+So, we need to do the buffer overflow while giving the first input.
+
+The starting address of buffer is noted in gdb from the content of EAX register after just executing the gets() function.
+
+EAX: 0x804fb70 ("yes")
+
+So, the starting address of buffer is 0x804fb70.
+
+In gdb when we set the esp to execute printf() function the content of EAX register
+
+EAX: 0x804fc20 --> 0x8048a60 --> 0x80488ee (<_ZN7Greeter8sayHelloEPKc>:	push   ebp)
+
+Where : 0x804fc20 -> memory location, 0x8048a60 --> reference that refers to _ZN7Greeter8sayHelloEPKc function, 0x80488ee -->  _ZN7Greeter8sayHelloEPKc function address.
+
+So, we need to overflow the buffer with random number of characters of length starting with "yes\0" to pass the strcmp function= 0x804fc20 - starting address of buffer = 0x804fc20-0x804fb70=0xb0= 176.
+
+So, the address we need to modify is : 0x804fc20
+
+
+The buffer is filled with "yes\0" to pass the strcmp function and followed by the target function address(0x08048876) and the location 0x804fc20 is modified with an address of buffer(0x0804fb74) where the target function adrress is present.
+
+When the virtual table is refered, the vtable refers to a buffer location where the target function address is present and jumps to execute the get_flag() function which requires an argument so the file name "flag.txt" is appended during buffer overflow to pass it as an argument. 
+
+
+
+
+

@@ -1,0 +1,16 @@
+Target function to execute to get the flag:  getFlag() located at memory location : 0x0804865b
+
+There is a scanf() function in check_key() function which needs to be exploited.
+
+The starting address of buffer is 0xffffdad0 found from
+EAX: 0xffffdad0 ("aneet") 
+
+The size of buffer we need to write before the return address: $ebp+4-0xffffdad0=0x4c=76.
+
+There is a strncmp in check_key() function before returning, which compares the first 4 characters between the value of location 0xffffdad0(start of buffer) and the location 0xffffdb30.
+
+The difference between this two is 0x60=96.
+
+The buffer is overflow with a value, modifies the return address and modifies the location 0xffffdb30 in such a way that the first 4 characters are matched between the buffer and the value of location 0xffffdb30.
+
+

@@ -1,0 +1,8 @@
+In make_passwd() function there is a call to getenv@plt which has argument 0x8048905 ("FLAG").
+There is a check that compares the value of FLAG must be greater than 0. So we set FLAG=1.
+
+In strcmp function we got the generated string that is compared to execute "cdefghijklmnopqrstuvwxyz12123456789" to execute "ls -l" command.
+
+This ls is linked with sh to get a shell using the link command and setting the path.
+
+when we get the shell, cat flag.txt gives us the flag.

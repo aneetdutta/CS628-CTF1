@@ -1,0 +1,57 @@
+This problem has several parts:
+
+1. Identify how to overflow and call the get_flag() function in the presence of canary which I understood in gdb by inspecting the address  at mentioned in main() function.
+2. How the canary is chosen so that it can be overwritten in a meaningful way.
+
+Target function address get_flag():0x0804846b
+
+There is a comparison in the get_flag() function and if the comparison fails we will not get the flag.
+0x08048490 <+37>:	mov    eax,ds:0x804a020 (storing the value of the location 0x804a020)
+0x08048495 <+42>:	cmp    eax,0x3  (comparing if the value of eax is 0x3)
+0x08048498 <+45>:	jne    0x80484b0 <get_flag+69>
+
+So, when we enter get_flag() the value at location 0x804a020 must be 0x3.
+
+But we can not overwrite this location directly.
+
+The value of this location 0x804a020 will only be 0x3 when we instead of directly calling the get_flag() function we call in a series of function call in the following oreder:
+one_two() -> buckle() -> my_shoe() -> get_flag() because,
+
+In one_two() we have a line that writes 0x1 in 0x804a020: mov    DWORD PTR ds:0x804a020,0x1.
+
+
+In the following buckle() there is a comparison of the value of 0x804a020 with 0x1
+0x08048386 <+3>:	mov    eax,ds:0x804a020
+0x0804838b <+8>:	cmp    eax,0x1                                    and writes 0x2 in the same location: 0x08048390 <+13>:mov    DWORD PTR ds:0x804a020,0x2.
+
+In the following my_shoe() there is a comparison of the value of 0x804a020 with 0x2
+0x08048386 <+3>:	mov    eax,ds:0x804a020
+0x0804838b <+8>:	cmp    eax,0x2                                    and writes 0x3 in the same location: 0x08048390 <+13>:mov    DWORD PTR ds:0x804a020,0x3.
+
+In this way, the comparison of the value at the location of 0x804a020 with 0x3 is passed.
+
+Now, the way to calculate canary is found out by analyzing the rand(),srand() and get_unix_time() function.
+
+In srand() function a value is written in the location 0x804aa00,eax.
+
+In rand() function the value stored at 0x804aa00 is used to calculate the canary. The value stored is multiplied with 0x343fd and then added with 0x269ec3.
+
+This value is canary is understood by this lines in main() after executing the rand() and srand() : 0x8048571 <main+39>:mov  ds:0x804aa04,eax. 0x804aa04 is the canary address we find earlier.
+
+So, we found out the difference between start of buffer and the location to modify return adrress and filled that with canary value.
+
+c= currenttime*0x343fd
+canary= c+0x269ec3
+
+The starting address of buffer is: 0xffffd6dc and $ebp=0xffffd808 , so $ebp+4-$eax=0x130=304.
+
+The canary is of size 4 therefore, 76times the canary is placed followed by the address ofthis functions in this order one_two() -> buckle() -> my_shoe() -> get_flag().
+
+Input Script:
+
+python -c canary*76+address of one_two()+address of buckle()+address of my_shoe()+address of get_flag() 
+
+
+
+ 
+

@@ -1,0 +1,1 @@
+The part of the cipher text is known which is cs628a{ }. So, the key is reverse engineered from the cipher text to the partial plain text(easy due to XOR cipher) which gave us the total key. Using this we further decrypt the cipher text and the flag is received.

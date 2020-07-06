@@ -1,0 +1,28 @@
+Target function to execute to get the flag: get_flag() present at memory location 0x0804867b.
+
+At line number 30, there is a call to a scanf() function which asks for a integer found by the format specifier "%hd" at memory location 0x8048906. The content of this memory location is pushed before executing scanf() function. "%hd" refers that scanf() will read 16bit integer.
+
+There is a comparison after taking the input with a fixed value(EAX:0xf2=242).
+0x08048762 <+107>: cmp    edx,eax
+
+Jump is taken if the value is less than the fixed value(242).If the value is greater then the Jump is not taken and the function will exit.
+0x08048764 <+109>: jl     0x8048780 <keep_secret+137>
+
+The value passed in %hd is the argument for fgets() and it will read only that many characters.
+
+So, the integer should be such that it will pass the compare test as well as allocate buffer size that will be enough to modify the return address of keep_secret() function to the address of get_flag() function which is 0x0804867b. Therefore, an large integer is taken so that the integer overflows and pass the comparison as well as fgets reads the number of characters enough for buffer overflow.
+
+The starting address of buffer is noted in gdb from the content of EAX register after just executing the fgets() function.
+
+EAX: 0xffffda60 ("aneet\n")
+
+So, the starting address of buffer is 0xffffda60.
+
+Now the position of return address is calculated and number of random characters to use before placing the get_flag() address is given by the formula: $ebp-starting address of buffer=0xffffdb78-0xffffda60=0x118=280.
+
+Now, we have to write random 280 characters and then the address of get_flag() function which is 0x0804867b.
+
+Iside the get_flag() function there is a string compare which takes the argument as the value at location 0xffffdb10 and matches with the value of the location 0x804889d where "crucio" is hardcoded.
+
+The difference between 0xffffdb10-starting address of buffer=0xb0 which is less than 280. So, "crucio" must be written inside the buffer at the location 0xffffdb10. Therefore, instead of putting random values at buffer before modifying the return address the buffer is filled with "crucio" and followed by the get_flag() function address.
+ 
